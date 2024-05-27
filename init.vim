@@ -1,3 +1,6 @@
+" source lua
+lua require('init')
+
 set number      " enable line numbers
 syntax on       " enable syntax highlighting
 set autoindent  " enable autoindentation of code
