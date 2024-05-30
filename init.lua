@@ -25,6 +25,7 @@ require('lazy').setup({
     {'hrsh7th/cmp-nvim-lsp'},
     {'hrsh7th/nvim-cmp'},
     {'L3MON4D3/LuaSnip'},
+    {'nvim-tree/nvim-tree.lua'},
 })
 
 local lsp_zero = require('lsp-zero')
@@ -46,6 +47,7 @@ require('mason-lspconfig').setup({
   },
 })
 
+local luasnip = require('luasnip')
 local cmp = require('cmp')
 local cmp_action = require('lsp-zero').cmp_action()
 
@@ -64,10 +66,55 @@ cmp.setup({
     -- Scroll up and down in the completion documentation
     ['<C-u>'] = cmp.mapping.scroll_docs(-4),
     ['<C-d>'] = cmp.mapping.scroll_docs(4),
-  }),
+
+    ["<Tab>"] = cmp.mapping(function(fallback)
+      if cmp.visible() then
+        cmp.select_next_item()
+      elseif luasnip.locally_jumpable(1) then
+        luasnip.jump(1)
+      else
+        fallback()
+      end
+    end, { "i", "s" }),
+
+    ["<S-Tab>"] = cmp.mapping(function(fallback)
+      if cmp.visible() then
+        cmp.select_prev_item()
+      elseif luasnip.locally_jumpable(-1) then
+        luasnip.jump(-1)
+      else
+        fallback()
+      end
+    end, { "i", "s" }),
+}),
   snippet = {
     expand = function(args)
       require('luasnip').lsp_expand(args.body)
     end,
   },
 })
+
+require("nvim-tree").setup()
+
+vim.cmd([[
+	set number      " enable line numbers
+	syntax on       " enable syntax highlighting
+	set autoindent  " enable autoindentation of code
+	set showcmd     " show last command in bottom bar
+	set showmatch   " highlight matching parentheses
+	set shiftwidth=4 " set shift width to 4 spaces
+	set tabstop=4   " set tab width to 4 spaces
+	set expandtab   " use space characters instead of tabs
+
+	" split navigations
+	nnoremap <C-J> <C-W><C-J>
+	nnoremap <C-K> <C-W><C-K>
+	nnoremap <C-L> <C-W><C-L>
+	nnoremap <C-H> <C-W><C-H>
+
+	" search options
+	set hlsearch    " highlight matches
+	set incsearch   " incrementally highlight matching characters as you type while searching
+	set ignorecase  " ignore capital letters during search
+	set smartcase   " override ignorecase if searching specifically for capital letters
+]])
